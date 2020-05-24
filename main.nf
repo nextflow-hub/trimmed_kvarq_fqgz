@@ -1,29 +1,35 @@
+Channel.fromFilePairs("./*_{R1,R2}.p.fastq.gz")
+        .into {  ch_in_kvarq }
 
-ch_refFILE = Channel.value("$baseDir/refFILE")
+/*
+#==============================================
+# kvarq
+#==============================================
+*/
 
-inputFilePattern = "./*_{R1,R2}.fastq.gz"
-Channel.fromFilePairs(inputFilePattern)
-        .into {  ch_in_PROCESS }
 
+process kvarq {
 
-
-process process {
-#    publishDir 'results/PROCESS'
-#    container 'PROCESS_CONTAINER'
-
+    container 'abhi18av/kvarq'
+    publishDir 'results/kvarq'
 
     input:
-    set genomeFileName, file(genomeReads) from ch_in_PROCESS
+    set genomeFileName, file(genomeReads) from ch_in_kvarq
 
     output:
-    path("""${PROCESS_OUTPUT}""") into ch_out_PROCESS
-
+    path("""${genomeName}.json""") into ch_out_kvarq
 
     script:
-    #FIXME
     genomeName= genomeFileName.toString().split("\\_")[0]
-    
+
+
     """
-    CLI PROCESS
+    kvarq scan -l MTBC -p ${genomeReads[0]} ${genomeName}.json
     """
+
+//kvarq scan -l MTBC -p 10BCG_S20_R1_001.p.fastq.gz 10BCG_S20_R1_001.json
+
 }
+
+// To create CSV
+// kvarq summarize results/*.json > kvarq_results.csv
