@@ -1,9 +1,24 @@
-Channel.fromFilePairs("./*_{R1,R2}.p.fastq.gz")
-        .into {  ch_in_kvarq }
+#!/usr/bin/env nextflow
+
+/*
+#######################
+Code documentation
+#######################
+*/
+
 
 /*
 #==============================================
-# kvarq
+params
+#==============================================
+*/
+
+Channel.fromFilePairs("./*_{R1,R2}.p.fastq.gz")
+        .into { ch_in_kvarq }
+
+/*
+#==============================================
+kvarq
 #==============================================
 */
 
@@ -20,7 +35,7 @@ process kvarq {
     path("""${genomeName}.json""") into ch_out_kvarq
 
     script:
-    genomeName= genomeFileName.toString().split("\\_")[0]
+    genomeName = genomeFileName.toString().split("\\_")[0]
 
 
     """
@@ -31,5 +46,13 @@ process kvarq {
 
 }
 
+
+/*
+#==============================================
+# extra
+#==============================================
+*/
+
+// TODO add this as a separate process
 // To create CSV
 // kvarq summarize results/*.json > kvarq_results.csv
