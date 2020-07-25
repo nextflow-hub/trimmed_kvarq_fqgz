@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 
 /*
-#######################
-Code documentation
-#######################
+#==============================================
+code documentation
+#==============================================
 */
 
 
@@ -13,8 +13,20 @@ params
 #==============================================
 */
 
-Channel.fromFilePairs("./*_{R1,R2}.p.fastq.gz")
-        .into { ch_in_kvarq }
+params.trimmed = false
+params.saveBy = 'copy'
+params.resultsDir = 'results/kvarq'
+
+
+
+
+inputUntrimmedRawFilePattern = "./*_{R1,R2}.fastq.gz"
+inputTrimmedRawFilePattern = "./*_{R1,R2}.p.fastq.gz"
+
+inputRawFilePattern = params.trimmed ? inputTrimmedRawFilePattern : inputUntrimmedRawFilePattern
+
+Channel.fromFilePairs(inputRawFilePattern)
+        .set { ch_in_kvarq }
 
 /*
 #==============================================
@@ -26,7 +38,7 @@ kvarq
 process kvarq {
 
     container 'abhi18av/kvarq'
-    publishDir 'results/kvarq'
+    publishDir params.resultsDir, mode: params.saveBy
 
     input:
     set genomeFileName, file(genomeReads) from ch_in_kvarq
